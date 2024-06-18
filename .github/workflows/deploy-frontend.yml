@@ -1,0 +1,29 @@
+name: Build and Deploy Docker Image
+
+on:
+  push:
+    branches:
+      - main # chỉ áp dụng khi push code lên nhánh main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Environment Variables
+      run: |
+        echo "REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL}" >> .env
+      env:
+        REACT_APP_BACKEND_URL: ${{ vars.REACT_APP_BACKEND_URL }}
+
+    - name: Login to Docker Hub
+      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build Docker Image
+      run: docker build -t duchaidev/fe-booktour:latest .
+
+    - name: Push Docker Image
+      run: docker push duchaidev/fe-booktour:latest
